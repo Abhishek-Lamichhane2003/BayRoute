@@ -1,0 +1,65 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bayroute
+      POSTGRES_USER: bayroute
+      POSTGRES_PASSWORD: bayroute
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bayroute -d bayroute"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5432:5432"
+    volumes:
+      - bayroute-postgres:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://bayroute:bayroute@database:5432/bayroute
+      CORS_ORIGINS: http://localhost:3000
+      AUTO_SEED_DEMO: "true"
+      MODEL_ARTIFACT_PATH: /app/artifacts/delay_model.joblib
+      GTFS_RT_TRIP_UPDATES_URL: ${GTFS_RT_TRIP_UPDATES_URL:-}
+      TRANSIT_511_API_KEY: ${TRANSIT_511_API_KEY:-}
+      COLLECTOR_KEY: ${COLLECTOR_KEY:-change-me}
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - bayroute-artifacts:/app/artifacts
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        NEXT_PUBLIC_BAYROUTE_API_URL: http://localhost:8000
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+  collector:
+    profiles: ["live"]
+    build:
+      context: ./backend
+    command: ["bayroute", "collect", "--interval", "60"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://bayroute:bayroute@database:5432/bayroute
+      GTFS_RT_TRIP_UPDATES_URL: ${GTFS_RT_TRIP_UPDATES_URL:-}
+      TRANSIT_511_API_KEY: ${TRANSIT_511_API_KEY:-}
+      AUTO_SEED_DEMO: "false"
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  bayroute-postgres:
+  bayroute-artifacts:
+

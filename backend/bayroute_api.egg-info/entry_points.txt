@@ -1,0 +1,2 @@
+[console_scripts]
+bayroute = bayroute.cli:main
