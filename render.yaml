@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: bayroute-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:////tmp/bayroute.db
+      - key: AUTO_SEED_DEMO
+        value: "true"
+      - key: MODEL_ARTIFACT_PATH
+        value: /tmp/bayroute-delay-model.joblib
+      - key: CORS_ORIGINS
+        value: https://bayroute-demo.onrender.com
+      - key: COLLECTOR_KEY
+        generateValue: true
+
+  - type: web
+    name: bayroute-demo
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile.web
+    dockerContext: .
+    healthCheckPath: /
