@@ -1,0 +1,56 @@
+{
+  "overview": {
+    "active_routes": 4,
+    "tracked_vehicles": 30,
+    "average_delay_seconds": 188.5,
+    "on_time_percent": 80.5,
+    "data_mode": "demo",
+    "last_updated": "2026-11-12T18:42:00",
+    "alerts": [
+      {
+        "severity": "info",
+        "title": "Network operating normally",
+        "detail": "No route-level delay threshold has been exceeded."
+      }
+    ]
+  },
+  "routes": [
+    { "id": "22", "short_name": "22", "long_name": "Palo Alto - Eastridge", "color": "#E66A3C" },
+    { "id": "522", "short_name": "522", "long_name": "Rapid Palo Alto - Eastridge", "color": "#1E6FA8" },
+    { "id": "66", "short_name": "66", "long_name": "North Milpitas - Kaiser San Jose", "color": "#7C5CBF" },
+    { "id": "GREEN", "short_name": "Green", "long_name": "Winchester - Old Ironsides", "color": "#16856C" }
+  ],
+  "stops": [
+    { "id": "DIRIDON", "code": "6001", "name": "San Jose Diridon", "latitude": 37.3298, "longitude": -121.9025 },
+    { "id": "SANTA_CLARA", "code": "6002", "name": "Santa Clara & 1st", "latitude": 37.3375, "longitude": -121.8903 },
+    { "id": "JAPANTOWN", "code": "6003", "name": "Japantown / Ayer", "latitude": 37.3486, "longitude": -121.8954 },
+    { "id": "BERRYESSA", "code": "6004", "name": "Berryessa Transit Center", "latitude": 37.3684, "longitude": -121.8746 },
+    { "id": "MILPITAS", "code": "6005", "name": "Milpitas Transit Center", "latitude": 37.4091, "longitude": -121.8914 },
+    { "id": "ALUM_ROCK", "code": "6006", "name": "Alum Rock Transit Center", "latitude": 37.3681, "longitude": -121.8354 },
+    { "id": "EASTRIDGE", "code": "6007", "name": "Eastridge Transit Center", "latitude": 37.3256, "longitude": -121.813 },
+    { "id": "WINCHESTER", "code": "6008", "name": "Winchester Transit Center", "latitude": 37.2794, "longitude": -121.95 }
+  ],
+  "vehicles": [
+    { "vehicle_id": "VTA-22-21", "route_id": "22", "route_name": "22", "route_color": "#E66A3C", "stop_id": "SANTA_CLARA", "stop_name": "Santa Clara & 1st", "latitude": 37.339, "longitude": -121.8915, "delay_seconds": 45, "captured_at": "2026-11-12T18:42:00" },
+    { "vehicle_id": "VTA-522-22", "route_id": "522", "route_name": "522", "route_color": "#1E6FA8", "stop_id": "BERRYESSA", "stop_name": "Berryessa Transit Center", "latitude": 37.3699, "longitude": -121.8758, "delay_seconds": 125, "captured_at": "2026-11-12T18:40:00" },
+    { "vehicle_id": "VTA-66-23", "route_id": "66", "route_name": "66", "route_color": "#7C5CBF", "stop_id": "MILPITAS", "stop_name": "Milpitas Transit Center", "latitude": 37.4106, "longitude": -121.8926, "delay_seconds": 205, "captured_at": "2026-11-12T18:38:00" },
+    { "vehicle_id": "VTA-GREEN-24", "route_id": "GREEN", "route_name": "Green", "route_color": "#16856C", "stop_id": "DIRIDON", "stop_name": "San Jose Diridon", "latitude": 37.3313, "longitude": -121.9037, "delay_seconds": 285, "captured_at": "2026-11-12T18:36:00" }
+  ],
+  "reliability": [
+    { "route_id": "GREEN", "route_name": "Green", "color": "#16856C", "samples": 673, "average_delay_seconds": 93.5, "on_time_percent": 92.1, "reliability_score": 92.1 },
+    { "route_id": "66", "route_name": "66", "color": "#7C5CBF", "samples": 673, "average_delay_seconds": 140.7, "on_time_percent": 89.3, "reliability_score": 89.3 },
+    { "route_id": "522", "route_name": "522", "color": "#1E6FA8", "samples": 841, "average_delay_seconds": 135.0, "on_time_percent": 88.8, "reliability_score": 88.8 },
+    { "route_id": "22", "route_name": "22", "color": "#E66A3C", "samples": 1009, "average_delay_seconds": 173.2, "on_time_percent": 83.6, "reliability_score": 83.6 }
+  ],
+  "metrics": {
+    "trained_records": 2645,
+    "test_records": 662,
+    "mae_seconds": 70.31,
+    "baseline_mae_seconds": 114.29,
+    "improvement_percent": 38.47,
+    "within_two_minutes_percent": 85.5,
+    "residual_p90_seconds": 139.45,
+    "trained_at": "2026-11-12T18:30:00",
+    "model_version": "bayroute-hgbt-v1"
+  }
+}

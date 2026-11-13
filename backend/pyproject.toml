@@ -25,7 +25,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=8.3,<9",
+  "httpx2>=2.16,<3",
+  "pytest>=9.0.3,<10",
   "pytest-cov>=6,<8",
   "ruff>=0.9,<1",
 ]
@@ -39,9 +40,6 @@ include = ["bayroute*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-filterwarnings = [
-  "ignore:Using `httpx` with `starlette.testclient` is deprecated",
-]
 
 [tool.ruff]
 line-length = 100

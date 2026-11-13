@@ -1,28 +1,56 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
-import test from "node:test";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import test, { after, before } from "node:test";
 
 const templateRoot = new URL("../", import.meta.url);
+const projectRoot = fileURLToPath(templateRoot);
+const serverOrigin = "http://127.0.0.1:4173";
+let serverProcess;
+let serverOutput = "";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
-
-  return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
-    }),
+before(async () => {
+  const executable = join(projectRoot, "node_modules", ".bin", "wrangler");
+  serverProcess = spawn(
+    executable,
+    ["dev", "--config", "wrangler.json", "--port", "4173", "--ip", "127.0.0.1"],
     {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
+      cwd: join(projectRoot, "dist", "server"),
+      env: { ...process.env, WRANGLER_SEND_METRICS: "false" },
+      stdio: ["ignore", "pipe", "pipe"],
     },
   );
+  serverProcess.stdout.on("data", (chunk) => { serverOutput += chunk.toString(); });
+  serverProcess.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
+
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    if (serverProcess.exitCode !== null) {
+      throw new Error(`Wrangler exited before the server was ready.\n${serverOutput}`);
+    }
+    try {
+      const response = await fetch(`${serverOrigin}/`);
+      if (response.ok) return;
+    } catch {
+      // The local Worker is still starting.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error(`Timed out waiting for the local Worker.\n${serverOutput}`);
+}, { timeout: 30_000 });
+
+after(async () => {
+  if (!serverProcess || serverProcess.exitCode !== null) return;
+  serverProcess.kill("SIGTERM");
+  await Promise.race([
+    new Promise((resolve) => serverProcess.once("exit", resolve)),
+    new Promise((resolve) => setTimeout(resolve, 3_000)),
+  ]);
+});
+
+async function render() {
+  return fetch(`${serverOrigin}/`, { headers: { accept: "text/html" } });
 }
 
 test("server-renders the BayRoute dashboard shell", async () => {

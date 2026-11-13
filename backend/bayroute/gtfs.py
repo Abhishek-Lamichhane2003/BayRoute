@@ -172,6 +172,9 @@ def persist_parsed_feed(session: Session, parsed: ParsedFeed) -> IngestStats:
                 source="gtfs_rt",
             )
         )
+        # A malformed feed can repeat an entity within the same payload. Track
+        # newly staged keys as well as keys that were already in the database.
+        existing.add(observation.source_event_key)
         inserted += 1
     session.commit()
     return IngestStats(

@@ -19,6 +19,7 @@ optional and uses a user-supplied GTFS-Realtime Trip Updates endpoint.
 - Temporal feature pipeline with chronological train/test separation
 - Histogram gradient-boosting model and historical-median baseline
 - React dashboard with MapLibre and OpenStreetMap tiles
+- Native SwiftUI iPhone app with MapKit, offline fallback, and live API configuration
 - Interactive delay forecast form with API and offline-demo modes
 - Docker Compose stack for the web app, API, PostgreSQL, and optional collector
 - Backend tests, rendered-page tests, linting, coverage, and GitHub Actions CI
@@ -70,6 +71,21 @@ Open `http://localhost:3000`. API documentation is available at
 If `NEXT_PUBLIC_BAYROUTE_API_URL` is omitted, the dashboard uses `public/demo.json`. The
 API also seeds a deterministic demo database when `AUTO_SEED_DEMO=true`.
 
+## iOS app
+
+Open `ios/BayRoute/BayRoute.xcodeproj` in Xcode 16 or newer and run the `BayRoute`
+scheme on an iPhone or iOS Simulator. The app works immediately with a bundled offline
+snapshot and provides four native tabs:
+
+- A MapKit network map with vehicle positions and operational alerts
+- A 28-day route reliability comparison
+- An interactive arrival-delay forecast
+- Settings for switching between demo mode and a live FastAPI deployment
+
+Enter `http://localhost:8000` in the app's Settings tab when the API is running on the
+same Mac as the Simulator. See `ios/BayRoute/README.md` for physical-device and hosted
+API instructions.
+
 ## Docker
 
 ```bash
@@ -95,6 +111,7 @@ Set:
 GTFS_RT_TRIP_UPDATES_URL=https://your-trip-updates-endpoint?api_key={api_key}
 TRANSIT_511_API_KEY=your-token
 AUTO_SEED_DEMO=false
+COLLECTOR_KEY=replace-with-a-long-random-secret
 ```
 
 The collector replaces the literal `{api_key}` in the configured URL. Run a single pull:
@@ -165,6 +182,10 @@ bayroute train
 | POST | `/api/predict` | Delay forecast with an error band |
 | POST | `/api/ingest/gtfs` | Protected one-shot feed collection |
 
+The ingestion endpoint requires the configured value in the `X-Collector-Key` request
+header. It returns `503` when no collector key is configured instead of exposing an
+unprotected network-fetch endpoint.
+
 ## Verification
 
 Backend:
@@ -194,4 +215,3 @@ npm test
 ## License
 
 MIT
-

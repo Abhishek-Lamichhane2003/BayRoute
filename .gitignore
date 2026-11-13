@@ -10,9 +10,16 @@ __pycache__/
 *.db
 backend/artifacts/*.joblib
 backend/.coverage
+backend/*.egg-info/
 node_modules/
 .next/
 .vinext/
 dist/
 .wrangler/
+.build/
+ios/**/.build/
+ios/**/build/
+ios/**/*.xcuserstate
+ios/**/xcuserdata/
+*.tsbuildinfo
 coverage/

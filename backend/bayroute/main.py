@@ -5,8 +5,10 @@ from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
 from datetime import timedelta
 
+import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from google.protobuf.message import DecodeError
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -269,7 +271,12 @@ def create_app(
         session: Session = Depends(get_session),
     ) -> IngestResult:
         settings_value: Settings = request.app.state.settings
-        if settings_value.collector_key and x_collector_key != settings_value.collector_key:
+        if not settings_value.collector_key:
+            raise HTTPException(
+                status_code=503,
+                detail="COLLECTOR_KEY is not configured",
+            )
+        if x_collector_key != settings_value.collector_key:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid key")
         url = settings_value.resolved_gtfs_url()
         if not url:
@@ -279,7 +286,7 @@ def create_app(
             )
         try:
             stats = await fetch_and_ingest(session, url)
-        except (ValueError, OSError) as exc:
+        except (DecodeError, httpx.HTTPError, ValueError, OSError) as exc:
             raise HTTPException(status_code=502, detail="GTFS feed could not be processed") from exc
         return IngestResult(
             received_entities=stats.received_entities,

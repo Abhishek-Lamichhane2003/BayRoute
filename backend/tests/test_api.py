@@ -4,6 +4,7 @@ from datetime import datetime
 
 from fastapi.testclient import TestClient
 
+from bayroute.config import Settings
 from bayroute.main import create_app
 
 
@@ -67,3 +68,33 @@ def test_prediction_rejects_unknown_route(tmp_path) -> None:
         )
     assert response.status_code == 404
     assert response.json()["detail"] == "Unknown route"
+
+
+def test_ingest_endpoint_requires_collector_configuration(tmp_path) -> None:
+    app = create_app(database_url=f"sqlite:///{tmp_path / 'test.db'}", auto_seed=False)
+    with TestClient(app) as client:
+        response = client.post("/api/ingest/gtfs")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "COLLECTOR_KEY is not configured"
+
+
+def test_ingest_endpoint_rejects_invalid_key(tmp_path) -> None:
+    settings = Settings(
+        database_url=f"sqlite:///{tmp_path / 'test.db'}",
+        cors_origins=("http://localhost:3000",),
+        auto_seed_demo=False,
+        model_artifact_path=str(tmp_path / "model.joblib"),
+        gtfs_rt_trip_updates_url="https://example.test/feed.pb",
+        transit_511_api_key=None,
+        collector_key="expected-key",
+    )
+    app = create_app(settings=settings)
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/ingest/gtfs",
+            headers={"x-collector-key": "wrong-key"},
+        )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid key"
