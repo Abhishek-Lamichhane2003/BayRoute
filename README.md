@@ -8,6 +8,15 @@ reliability, and interactive forecasts in a responsive map dashboard.
 The repository runs without credentials using deterministic demo data. Live ingestion is
 optional and uses a user-supplied GTFS-Realtime Trip Updates endpoint.
 
+## Live Demo
+
+- [Web dashboard](https://bayroute-demo.onrender.com)
+- [API documentation](https://bayroute-api.onrender.com/docs)
+
+The free Render demo automatically seeds its SQLite database and trains the included
+delay model, so the dashboard, reliability metrics, and prediction workflow are usable
+without credentials.
+
 ![BayRoute social preview](public/og.png)
 
 ## What is included
